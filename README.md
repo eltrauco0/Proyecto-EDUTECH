@@ -1,2 +1,2 @@
-# Proyecto-Bilblioteca
+# Proyecto-EDUTECH
 Proyecto Semestral de GitHub
