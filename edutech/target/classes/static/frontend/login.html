@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login y Registro - Plataforma de Cursos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            background: black;
+            position: relative;
+        }
+        #waveCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            image-rendering: pixelated;
+            background: #000000; /* Changed to pure black hex color for darkest black */
+        }
+        .logo {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            font-family: 'Arial Black', Arial, sans-serif;
+            user-select: none;
+            z-index: 1000;
+        }
+        .container {
+            background-color: white;
+            margin-top: 40px;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 350px;
+            position: relative;
+            z-index: 10;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="tel"],
+        input[type="email"] {
+            width: 100%;
+            padding: 8px 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 20px;
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-top: 15px;
+            text-align: center;
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        .toggle-link {
+            margin-top: 15px;
+            text-align: center;
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">EDUTECH</div>
+    <div class="container">
+        <h2 id="form-title">Iniciar Sesión</h2>
+
+        <form id="login-form">
+            <label for="login-username">Nombre de usuario</label>
+            <input type="text" id="login-username" name="login-username" required />
+            <label for="login-password">Contraseña</label>
+            <input type="password" id="login-password" name="login-password" required />
+            <button type="submit">Iniciar Sesión</button>
+        </form>
+
+        <form id="register-form" style="display:none;">
+            <label for="rut">RUT</label>
+            <input type="text" id="rut" name="rut" required />
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" name="nombre" required />
+            <label for="apPaterno">Apellido Paterno</label>
+            <input type="text" id="apPaterno" name="apPaterno" required />
+            <label for="apMaterno">Apellido Materno</label>
+            <input type="text" id="apMaterno" name="apMaterno" required />
+            <label for="telefono">Teléfono</label>
+            <input type="tel" id="telefono" name="telefono" required />
+            <label for="fechaNacimiento">Fecha de Nacimiento</label>
+            <input type="date" id="fechaNacimiento" name="fechaNacimiento" required />
+            <label for="correo">Correo</label>
+            <input type="email" id="correo" name="correo" required />
+            <label for="nombreUsuario">Nombre de usuario</label>
+            <input type="text" id="nombreUsuario" name="nombreUsuario" required />
+            <label for="contraseña">Contraseña</label>
+            <input type="password" id="contraseña" name="contraseña" required />
+            <button type="submit">Crear Cuenta</button>
+        </form>
+
+        <div class="message" id="message"></div>
+        <div class="toggle-link" id="toggle-link">¿No tienes cuenta? Regístrate aquí</div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const toggleLink = document.getElementById('toggle-link');
+        const formTitle = document.getElementById('form-title');
+        const messageDiv = document.getElementById('message');
+
+        toggleLink.addEventListener('click', () => {
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                formTitle.textContent = 'Iniciar Sesión';
+                toggleLink.textContent = '¿No tienes cuenta? Regístrate aquí';
+                messageDiv.textContent = '';
+                messageDiv.className = 'message';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                formTitle.textContent = 'Crear Cuenta';
+                toggleLink.textContent = '¿Ya tienes cuenta? Inicia sesión aquí';
+                messageDiv.textContent = '';
+                messageDiv.className = 'message';
+            }
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            messageDiv.textContent = '';
+            messageDiv.className = 'message';
+
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            if (!username || !password) {
+                messageDiv.textContent = 'Por favor, ingresa nombre de usuario y contraseña.';
+                messageDiv.className = 'message error';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/usuarios');
+                if (!response.ok) throw new Error('Error al obtener usuarios');
+                const usuarios = await response.json();
+                const user = usuarios.find(u => u.nombreUsuario === username);
+
+                if (user && user.contraseña === password) {
+                    messageDiv.textContent = `Bienvenido, ${username}! Has iniciado sesión correctamente.`;
+                    messageDiv.className = 'message';
+                } else {
+                    messageDiv.textContent = 'Usuario o contraseña incorrectos.';
+                    messageDiv.className = 'message error';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'Error al conectar con el servidor.';
+                messageDiv.className = 'message error';
+            }
+        });
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            messageDiv.textContent = '';
+            messageDiv.className = 'message';
+
+            const rut = document.getElementById('rut').value.trim();
+            const nombreUsuario = document.getElementById('nombreUsuario').value.trim();
+            const apPaterno = document.getElementById('apPaterno').value.trim();
+            const apMaterno = document.getElementById('apMaterno').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+            const correo = document.getElementById('correo').value.trim();
+            const nombre = document.getElementById('nombre').value.trim();
+            const fechaNacimiento = document.getElementById('fechaNacimiento').value;
+            const contraseña = document.getElementById('contraseña').value;
+
+            if (!rut || !nombreUsuario || !apPaterno || !apMaterno || !telefono || !correo || !nombre || !fechaNacimiento || !contraseña) {
+                messageDiv.textContent = 'Por favor, completa todos los campos.';
+                messageDiv.className = 'message error';
+                return;
+            }
+
+            const newUser = {
+                rut,
+                nombreUsuario,
+                apPaterno,
+                apMaterno,
+                telefono,
+                correo,
+                nombre,
+                fechaNacimiento,
+                contraseña
+            };
+
+            try {
+                const response = await fetch('/api/v1/usuarios', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newUser)
+                });
+
+                if (response.ok) {
+                    messageDiv.textContent = 'Usuario creado exitosamente. Ahora puedes iniciar sesión.';
+                    messageDiv.className = 'message';
+                    registerForm.reset();
+                    toggleLink.click();
+                } else {
+                    messageDiv.textContent = 'Error al crear el usuario.';
+                    messageDiv.className = 'message error';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'Error al conectar con el servidor.';
+                messageDiv.className = 'message error';
+            }
+        });
+    </script>
+</body>
+</html>
